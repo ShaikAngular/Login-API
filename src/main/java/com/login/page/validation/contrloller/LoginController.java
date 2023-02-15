@@ -9,6 +9,7 @@ import com.login.page.validation.service.LoginService;
 import com.login.page.validation.service.ValidateCredentialsService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,12 +33,17 @@ public class LoginController {
     }
 
     @PostMapping("/Login-Details")
-    public ObjectNode validateDetails(@RequestBody @NotNull Credentials credentials){
+    public ResponseEntity<ObjectNode> validateDetails(@RequestBody @NotNull Credentials credentials){
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode node = objectMapper.createObjectNode();
         JsonNode innerNode = objectMapper.createObjectNode();
-        ((ObjectNode)innerNode).put("APIResponse", validateService.validateCredentials(credentials));
+        ResponseEntity<String> response = validateService.validateCredentials(credentials);
+        ((ObjectNode)innerNode).put("APIResponse", response.getBody());
         node.set("Result",innerNode);
-        return node;
+        return ResponseEntity.status(response.getStatusCode()).body(node);
     }
+
+//    public ResponseEntity<string> validationDetails(@RequestBody @NotNull Credentials credentials){
+//        return validateService.validateCredentials(credentials);
+//    }
 }
